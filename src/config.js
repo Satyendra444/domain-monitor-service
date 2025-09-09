@@ -1,5 +1,18 @@
 require('dotenv').config();
 
+// Function to parse multiple email addresses from environment variables
+function parseMultipleEmails(emailString) {
+  if (!emailString || typeof emailString !== 'string') {
+    return null;
+  }
+  
+  // Split by comma, trim whitespace, and filter out empty strings
+  return emailString
+    .split(',')
+    .map(email => email.trim())
+    .filter(email => email.length > 0 && email.includes('@'));
+}
+
 const config = {
   // Domains to monitor
   domains: [
@@ -27,8 +40,8 @@ const config = {
       }
     },
     recipients: {
-      to: process.env.TO_EMAIL || 'kumarsatyendra77verma@gmail.com',
-      cc: process.env.CC_EMAIL || 'vermasatyendra77@gmail.com'
+      to: parseMultipleEmails(process.env.TO_EMAIL) || ['satyendra.verma@91trucks.com'],
+      cc: parseMultipleEmails(process.env.CC_EMAIL) || ['vermasatyendra77@gmail.com']
     },
     from: process.env.SMTP_USER
   },
@@ -69,6 +82,8 @@ function validateConfig() {
   console.log('✅ All required environment variables are set');
   console.log(`📧 SMTP User: ${config.email.smtp.auth.user}`);
   console.log(`📧 SMTP Pass: ${'*'.repeat(config.email.smtp.auth.pass.length)}`);
+  console.log(`📧 TO Recipients: ${Array.isArray(config.email.recipients.to) ? config.email.recipients.to.join(', ') : config.email.recipients.to}`);
+  console.log(`📧 CC Recipients: ${Array.isArray(config.email.recipients.cc) ? config.email.recipients.cc.join(', ') : config.email.recipients.cc}`);
 }
 
 // Run validation

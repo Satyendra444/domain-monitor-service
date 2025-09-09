@@ -138,7 +138,9 @@ Note: Each domain is checked ${config.monitoring.retries} times with retries bef
       
       const info = await this.transporter.sendMail(mailOptions);
       console.log('✅ Email alert sent successfully:', info.messageId);
-      console.log(`📧 Recipients: TO: ${config.email.recipients.to}, CC: ${config.email.recipients.cc}`);
+      const toRecipients = Array.isArray(config.email.recipients.to) ? config.email.recipients.to.join(', ') : config.email.recipients.to;
+      const ccRecipients = Array.isArray(config.email.recipients.cc) ? config.email.recipients.cc.join(', ') : config.email.recipients.cc;
+      console.log(`📧 Recipients: TO: ${toRecipients}, CC: ${ccRecipients}`);
       
       return true;
     } catch (error) {
