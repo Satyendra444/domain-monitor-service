@@ -250,4 +250,4 @@ MIT License - Feel free to modify and adapt for your needs.
 
 ---
 
-**Built with ❤️ using Node.js - Reliable domain monitoring made simple**
+****
