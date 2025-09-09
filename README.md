@@ -1,25 +1,40 @@
-# 91Trucks Domain Monitoring Service
+# Domain Monitoring Service
 
-A robust domain monitoring service that checks the availability of multiple domains every 10 minutes and sends email alerts when any domain becomes unavailable.
+A robust and scalable domain monitoring service that continuously checks the availability of multiple domains and sends email alerts when any domain becomes unavailable. Built with Node.js for reliability and easy deployment.
 
 ## 🌟 Features
 
 - **Automated Monitoring**: Checks domain availability every 10 minutes (configurable)
-- **Email Alerts**: Sends detailed email notifications when domains are down
+- **Email Alerts**: Sends detailed HTML email notifications when domains are down
 - **Retry Logic**: Tests each domain 3 times with retries before marking as down
 - **Email Cooldown**: Prevents spam by limiting emails to once per 30 minutes per domain
-- **Comprehensive Logging**: Detailed console output with timestamps and status
+- **Comprehensive Logging**: Detailed console output with timestamps and status indicators
 - **Graceful Shutdown**: Handles SIGINT and SIGTERM signals properly
-- **Easy Configuration**: Environment-based configuration
+- **Environment-based Configuration**: Easy setup with .env files
+- **Production Ready**: Built-in error handling and process management
 
-## 📋 Monitored Domains
+## 📋 Default Monitored Domains
 
-The service monitors the following 91Trucks domains:
+The service is configured by default to monitor the following domains:
 
 - https://www.91trucks.com/
 - https://blog.91trucks.com/
 - https://jeeto.91trucks.com/
 - https://cv.91trucks.com/
+
+> **Note**: You can easily modify the monitored domains by editing the `config.js` file in the `src/` directory.
+
+### Customizing Monitored Domains
+
+To monitor your own domains, edit the `domains` array in `src/config.js`:
+
+```javascript path=null start=null
+domains: [
+  'https://yourdomain.com/',
+  'https://api.yourdomain.com/',
+  'https://subdomain.yourdomain.com/'
+],
+```
 
 ## 🚀 Quick Start
 
@@ -47,24 +62,30 @@ The service monitors the following 91Trucks domains:
 
 3. **Configure your .env file** with the following settings:
    ```env
-   # Email Configuration
+   # Email Configuration (Required)
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
    SMTP_USER=your-email@gmail.com
    SMTP_PASS=your-app-password
    
-   # Recipients (already configured for 91Trucks)
-   TO_EMAIL=satyendra.verma@91trucks.com
-   CC_EMAIL=vermasatyendra77@gmail.com
+   # Email Recipients (Required)
+   TO_EMAIL=primary-recipient@yourdomain.com
+   CC_EMAIL=secondary-recipient@yourdomain.com
    
-   # Monitoring Configuration
+   # Monitoring Configuration (Optional)
    CHECK_INTERVAL_MINUTES=10
    
-   # Service Configuration
-   SERVICE_NAME=91Trucks Domain Monitor
+   # Service Configuration (Optional)
+   SERVICE_NAME=Domain Monitor Service
    ```
 
-4. **Start the service**:
+4. **Test your configuration** (optional but recommended):
+   ```bash
+   # Test email configuration
+   node -e "const Service = require('./src/index'); const s = new Service(); s.sendTestEmail();"
+   ```
+
+5. **Start the service**:
    ```bash
    npm start
    ```
@@ -82,9 +103,9 @@ The service monitors the following 91Trucks domains:
 
 ### Email Recipients
 
-The service is pre-configured to send alerts to:
-- **TO**: satyendra.verma@91trucks.com
-- **CC**: vermasatyendra77@gmail.com
+Configure your desired email recipients in the `.env` file:
+- **TO_EMAIL**: Primary recipient for alerts
+- **CC_EMAIL**: Secondary recipient (optional)
 
 ## 🛠️ Available Scripts
 
@@ -145,16 +166,16 @@ domain-monitor-service/
 | `SMTP_PORT` | SMTP server port | 587 |
 | `SMTP_USER` | Email username | - |
 | `SMTP_PASS` | Email password/app password | - |
-| `TO_EMAIL` | Primary recipient | satyendra.verma@91trucks.com |
-| `CC_EMAIL` | CC recipient | vermasatyendra77@gmail.com |
+| `TO_EMAIL` | Primary recipient | your-email@domain.com |
+| `CC_EMAIL` | CC recipient | backup@domain.com |
 | `CHECK_INTERVAL_MINUTES` | Minutes between checks | 10 |
-| `SERVICE_NAME` | Service display name | 91Trucks Domain Monitor |
+| `SERVICE_NAME` | Service display name | Domain Monitor Service |
 
 ## 🚨 Alert Example
 
 When a domain goes down, you'll receive an email like this:
 
-**Subject**: 🚨 Domain Alert: 1 domain(s) are down - 91Trucks Domain Monitor
+**Subject**: 🚨 Domain Alert: 1 domain(s) are down - Domain Monitor Service
 
 The email includes:
 - Alert summary with timestamp
@@ -218,9 +239,10 @@ For production deployment:
 
 ## 📞 Support
 
-For issues or questions about this monitoring service, contact:
-- **Email**: satyendra.verma@91trucks.com
-- **CC**: vermasatyendra77@gmail.com
+For issues or questions about this monitoring service:
+- Check the troubleshooting section in this README
+- Review the console logs for detailed error messages
+- Ensure your .env configuration is correct
 
 ## 📄 License
 
@@ -228,4 +250,4 @@ MIT License - Feel free to modify and adapt for your needs.
 
 ---
 
-**Made with ❤️ for 91Trucks - Keeping your domains monitored 24/7**
+**Built with ❤️ using Node.js - Reliable domain monitoring made simple**
