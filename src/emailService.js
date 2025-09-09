@@ -9,7 +9,7 @@ class EmailService {
 
   initializeTransporter() {
     try {
-      this.transporter = nodemailer.createTransporter(config.email.smtp);
+      this.transporter = nodemailer.createTransport(config.email.smtp);
       console.log('📧 Email service initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error.message);
@@ -142,7 +142,7 @@ Note: Each domain is checked ${config.monitoring.retries} times with retries bef
       
       return true;
     } catch (error) {
-      console.error('❌ Failed to send email alert:', error.message);
+      console.error('❌ Failed to send email alert:', error);
       return false;
     }
   }

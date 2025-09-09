@@ -139,7 +139,7 @@ class DomainMonitoringService {
     }
 
     if (this.cronJob) {
-      this.cronJob.destroy();
+      this.cronJob.stop();
       this.cronJob = null;
     }
 

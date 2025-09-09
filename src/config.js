@@ -9,19 +9,25 @@ const config = {
     'https://cv.91trucks.com/'
   ],
 
+  
   // Email configuration
   email: {
     smtp: {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: process.env.SMTP_PORT || 587,
+      port: parseInt(process.env.SMTP_PORT) || 587,
       secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
+      },
+      // Additional options for Gmail
+      requireTLS: true,
+      tls: {
+        rejectUnauthorized: false
       }
     },
     recipients: {
-      to: process.env.TO_EMAIL || 'satyendra.verma@91trucks.com',
+      to: process.env.TO_EMAIL || 'kumarsatyendra77verma@gmail.com',
       cc: process.env.CC_EMAIL || 'vermasatyendra77@gmail.com'
     },
     from: process.env.SMTP_USER
@@ -39,5 +45,33 @@ const config = {
     name: process.env.SERVICE_NAME || '91Trucks Domain Monitor'
   }
 };
+
+// Validate required environment variables
+function validateConfig() {
+  const requiredEnvVars = {
+    SMTP_USER: config.email.smtp.auth.user,
+    SMTP_PASS: config.email.smtp.auth.pass,
+  };
+
+  const missingVars = [];
+  for (const [varName, value] of Object.entries(requiredEnvVars)) {
+    if (!value || value.trim() === '') {
+      missingVars.push(varName);
+    }
+  }
+
+  if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingVars.join(', '));
+    console.error('Please check your .env file and ensure all SMTP credentials are set.');
+    process.exit(1);
+  }
+
+  console.log('✅ All required environment variables are set');
+  console.log(`📧 SMTP User: ${config.email.smtp.auth.user}`);
+  console.log(`📧 SMTP Pass: ${'*'.repeat(config.email.smtp.auth.pass.length)}`);
+}
+
+// Run validation
+validateConfig();
 
 module.exports = config;
