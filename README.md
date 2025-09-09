@@ -54,7 +54,7 @@ domains: [
 2. **Configure environment variables**:
    ```bash
    # Copy the example environment file
-   copy .env.example .env
+   copy  .env
    
    # Edit .env with your email settings
    notepad .env
