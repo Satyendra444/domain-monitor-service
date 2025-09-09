@@ -79,11 +79,11 @@ function validateConfig() {
     process.exit(1);
   }
 
-  console.log('✅ All required environment variables are set');
-  console.log(`📧 SMTP User: ${config.email.smtp.auth.user}`);
-  console.log(`📧 SMTP Pass: ${'*'.repeat(config.email.smtp.auth.pass.length)}`);
-  console.log(`📧 TO Recipients: ${Array.isArray(config.email.recipients.to) ? config.email.recipients.to.join(', ') : config.email.recipients.to}`);
-  console.log(`📧 CC Recipients: ${Array.isArray(config.email.recipients.cc) ? config.email.recipients.cc.join(', ') : config.email.recipients.cc}`);
+  // console.log('✅ All required environment variables are set');
+  // console.log(`📧 SMTP User: ${config.email.smtp.auth.user}`);
+  // console.log(`📧 SMTP Pass: ${'*'.repeat(config.email.smtp.auth.pass.length)}`);
+  // console.log(`📧 TO Recipients: ${Array.isArray(config.email.recipients.to) ? config.email.recipients.to.join(', ') : config.email.recipients.to}`);
+  // console.log(`📧 CC Recipients: ${Array.isArray(config.email.recipients.cc) ? config.email.recipients.cc.join(', ') : config.email.recipients.cc}`);
 }
 
 // Run validation

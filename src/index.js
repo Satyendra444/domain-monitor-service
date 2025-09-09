@@ -28,10 +28,10 @@ class DomainMonitoringService {
     await this.emailService.testConnection();
     
     // Perform initial check
-    console.log('\\n🔍 Performing initial domain check...');
+    // console.log('\n🔍 Performing initial domain check...');
     await this.performDomainCheck();
     
-    console.log('\\n✅ Service initialized successfully!');
+    // console.log('\n✅ Service initialized successfully!');
   }
 
   async performDomainCheck() {
@@ -53,7 +53,7 @@ class DomainMonitoringService {
   }
 
   async handleDownDomains(downDomains, checkResult) {
-    console.log(`\\n🚨 Found ${downDomains.length} down domain(s), preparing email alert...`);
+    // console.log(`\n🚨 Found ${downDomains.length} down domain(s), preparing email alert...`);
     
     // Filter domains that need email alerts (avoiding spam)
     const domainsNeedingAlert = this.filterDomainsForEmailAlert(downDomains);
@@ -66,12 +66,12 @@ class DomainMonitoringService {
         domainsNeedingAlert.forEach(domain => {
           this.lastEmailSent.set(domain.domain, Date.now());
         });
-        console.log(`✅ Email alert sent for ${domainsNeedingAlert.length} domain(s)`);
+        // console.log(`✅ Email alert sent for ${domainsNeedingAlert.length} domain(s)`);
       } else {
         console.error('❌ Failed to send email alert');
       }
     } else {
-      console.log('📧 Skipping email alert (recent alert already sent for these domains)');
+      // console.log('📧 Skipping email alert (recent alert already sent for these domains)');
     }
   }
 
@@ -92,7 +92,7 @@ class DomainMonitoringService {
       
       if (!shouldSend) {
         const minutesLeft = Math.ceil((cooldownMs - timeSinceLastEmail) / (60 * 1000));
-        console.log(`📧 Cooldown active for ${domain.domain} (${minutesLeft} minutes left)`);
+        // console.log(`📧 Cooldown active for ${domain.domain} (${minutesLeft} minutes left)`);
       }
       
       return shouldSend;
@@ -101,18 +101,18 @@ class DomainMonitoringService {
 
   start() {
     if (this.isRunning) {
-      console.log('⚠️ Service is already running');
+      // console.log('⚠️ Service is already running');
       return;
     }
 
     // Create cron expression for the specified interval  
     const cronExpression = `*/${config.monitoring.intervalMinutes} * * * *`;
     
-    console.log(`\\n⏰ Starting scheduled monitoring (every ${config.monitoring.intervalMinutes} minutes)`);
-    console.log(`📅 Cron expression: ${cronExpression}`);
+    // console.log(`\n⏰ Starting scheduled monitoring (every ${config.monitoring.intervalMinutes} minutes)`);
+    // console.log(`📅 Cron expression: ${cronExpression}`);
 
     this.cronJob = cron.schedule(cronExpression, async () => {
-      console.log('\\n' + '='.repeat(80));
+      console.log('\n' + '='.repeat(80));
       console.log(`⏰ Scheduled check triggered at ${new Date().toISOString()}`);
       console.log('='.repeat(80));
       
@@ -128,13 +128,13 @@ class DomainMonitoringService {
     });
 
     this.isRunning = true;
-    console.log('✅ Scheduled monitoring started successfully!');
-    console.log(`🔄 Monitoring will run every ${config.monitoring.intervalMinutes} minutes`);
+    // console.log('✅ Scheduled monitoring started successfully!');
+    // console.log(`🔄 Monitoring will run every ${config.monitoring.intervalMinutes} minutes`);
   }
 
   stop() {
     if (!this.isRunning) {
-      console.log('⚠️ Service is not running');
+      // console.log('⚠️ Service is not running');
       return;
     }
 
@@ -144,11 +144,11 @@ class DomainMonitoringService {
     }
 
     this.isRunning = false;
-    console.log('🛑 Scheduled monitoring stopped');
+    // console.log('🛑 Scheduled monitoring stopped');
   }
 
   async sendTestEmail() {
-    console.log('\\n🧪 Sending test email...');
+    // console.log('\n🧪 Sending test email...');
     const success = await this.emailService.sendTestEmail();
     return success;
   }
@@ -181,13 +181,13 @@ async function main() {
     
     // Keep the process running
     process.on('SIGINT', () => {
-      console.log('\\n\\n🛑 Received SIGINT (Ctrl+C), shutting down gracefully...');
+      // console.log('\n\n🛑 Received SIGINT (Ctrl+C), shutting down gracefully...');
       service.stop();
       process.exit(0);
     });
     
     process.on('SIGTERM', () => {
-      console.log('\\n\\n🛑 Received SIGTERM, shutting down gracefully...');
+      // console.log('\n\n🛑 Received SIGTERM, shutting down gracefully...');
       service.stop();
       process.exit(0);
     });
@@ -195,7 +195,7 @@ async function main() {
     // Log status every hour
     setInterval(() => {
       const status = service.getStatus();
-      console.log(`\\n📊 Service Status - Running: ${status.isRunning}, Domains: ${status.totalDomains}`);
+      // console.log(`\n📊 Service Status - Running: ${status.isRunning}, Domains: ${status.totalDomains}`);
     }, 60 * 60 * 1000); // Every hour
     
   } catch (error) {
