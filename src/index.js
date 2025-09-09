@@ -105,7 +105,7 @@ class DomainMonitoringService {
       return;
     }
 
-    // Create cron expression for the specified interval
+    // Create cron expression for the specified interval  
     const cronExpression = `*/${config.monitoring.intervalMinutes} * * * *`;
     
     console.log(`\\n⏰ Starting scheduled monitoring (every ${config.monitoring.intervalMinutes} minutes)`);
