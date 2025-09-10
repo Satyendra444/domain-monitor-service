@@ -19,8 +19,22 @@ const config = {
     'https://www.91trucks.com/',
     'https://blog.91trucks.com/',
     'https://jeeto.91trucks.com/',
-    'https://cv.91trucks.com/'
-  ],
+    'https://cv.91trucks.com/',
+    'https://admin.91trucks.com/',
+    'https://inventory.91trucks.com/',
+  //'https://inventoryapi.91trucks.com/',
+  //'https://api.91trucks.com/',
+  //'https://lms.91trucks.com/',
+  //'https://apilms.91trucks.com/',
+  'https://np.91trucks.com/',
+  'https://bd.91trucks.com/',
+  'https://sa.91trucks.com/',
+  'https://ace-ev.91trucks.com/',
+  'https://acegold.91trucks.com/',
+  //'https://cvapi.91trucks.com/'
+]
+
+  ,
 
   
   // Email configuration
@@ -48,9 +62,9 @@ const config = {
 
   // Monitoring configuration
   monitoring: {
-    intervalMinutes: parseInt(process.env.CHECK_INTERVAL_MINUTES) || 10,
+    intervalMinutes: parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5,
     timeout: 30000, // 30 seconds timeout for HTTP requests
-    retries: 3 // Number of retries before marking as down
+    retries: 2 // Number of retries before marking as down
   },
 
   // Service configuration
