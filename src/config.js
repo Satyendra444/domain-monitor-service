@@ -22,19 +22,19 @@ const config = {
     'https://cv.91trucks.com/',
     'https://admin.91trucks.com/',
     'https://inventory.91trucks.com/',
+    'https://np.91trucks.com/',
+    'https://bd.91trucks.com/',
+    'https://sa.91trucks.com/',
+    'https://ace-ev.91trucks.com/',
+    "https://forge.91trucks.com/",
+    'https://acegold.91trucks.com/',
+    "https://tata-ace-pro.91trucks.com/"
+  //'https://cvapi.91trucks.com/',
   //'https://inventoryapi.91trucks.com/',
   //'https://api.91trucks.com/',
   //'https://lms.91trucks.com/',
   //'https://apilms.91trucks.com/',
-  'https://np.91trucks.com/',
-  'https://bd.91trucks.com/',
-  'https://sa.91trucks.com/',
-  'https://ace-ev.91trucks.com/',
-  'https://acegold.91trucks.com/',
-  //'https://cvapi.91trucks.com/'
-]
-
-  ,
+],
 
   
   // Email configuration
