@@ -15,20 +15,14 @@ class DomainMonitor {
 
   async checkDomain(domain) {
     try {
-      console.log(`Checking domain: ${domain}`);
-      
       const response = await axios.get(domain, {
         timeout: config.monitoring.timeout,
-        validateStatus: function (status) {
-          // Consider 2xx and 3xx as successful
-          return status >= 200 && status < 400;
-        },
+        validateStatus: (status) => status >= 200 && status < 400,
         headers: {
           'User-Agent': 'Domain-Monitor-Service/1.0'
         }
       });
 
-      console.log(`✅ ${domain} is UP (Status: ${response.status})`);
       return {
         domain,
         isUp: true,
@@ -37,7 +31,6 @@ class DomainMonitor {
         error: null
       };
     } catch (error) {
-      console.log(`❌ ${domain} is DOWN (Error: ${error.message})`);
       return {
         domain,
         isUp: false,
@@ -49,26 +42,23 @@ class DomainMonitor {
   }
 
   async checkDomainWithRetries(domain) {
-    let lastResult = null;
-    
     for (let attempt = 1; attempt <= config.monitoring.retries; attempt++) {
-      lastResult = await this.checkDomain(domain);
+      const result = await this.checkDomain(domain);
       
-      if (lastResult.isUp) {
-        return lastResult;
+      if (result.isUp) {
+        return result;
       }
       
       if (attempt < config.monitoring.retries) {
-        console.log(`Retrying ${domain} in 5 seconds... (Attempt ${attempt}/${config.monitoring.retries})`);
-        await this.sleep(5000); // Wait 5 seconds before retry
+        await this.sleep(5000);
       }
     }
     
-    return lastResult;
+    return await this.checkDomain(domain);
   }
 
   async checkAllDomains() {
-    console.log(`\\n🔍 Starting domain check at ${new Date().toISOString()}`);
+    console.log(`\n🔍 Starting domain check at ${new Date().toISOString()}`);
     console.log('='.repeat(60));
 
     const results = [];
@@ -81,7 +71,6 @@ class DomainMonitor {
       result.timestamp = new Date().toISOString();
       results.push(result);
 
-      // Update domain status
       const wasUp = currentStatus.isUp;
       currentStatus.isUp = result.isUp;
       currentStatus.lastChecked = result.timestamp;
@@ -89,13 +78,11 @@ class DomainMonitor {
       if (!result.isUp) {
         currentStatus.failures++;
         downDomains.push(result);
-        
-        // Check if this is a new failure (was up, now down)
         if (wasUp) {
-          console.log(`🚨 NEW FAILURE DETECTED: ${domain}`);
+          console.log(`🚨 NEW FAILURE: ${domain}`);
         }
       } else {
-        currentStatus.failures = 0; // Reset failure counter on success
+        currentStatus.failures = 0;
       }
 
       this.domainStatus.set(domain, currentStatus);
@@ -106,7 +93,7 @@ class DomainMonitor {
     console.log(`❌ Domains DOWN: ${downDomains.length}`);
     
     if (downDomains.length > 0) {
-      console.log(`\\n🚨 DOWN DOMAINS:`);
+      console.log(`\n🚨 DOWN DOMAINS:`);
       downDomains.forEach(result => {
         console.log(`   - ${result.domain} (Error: ${result.error})`);
       });

@@ -4,9 +4,9 @@ A robust and scalable domain monitoring service that continuously checks the ava
 
 ## 🌟 Features
 
-- **Automated Monitoring**: Checks domain availability every 10 minutes (configurable)
+- **Automated Monitoring**: Checks domain availability every 5 minutes (configurable)
 - **Email Alerts**: Sends detailed HTML email notifications when domains are down
-- **Retry Logic**: Tests each domain 3 times with retries before marking as down
+- **Retry Logic**: Tests each domain 2 times with retries before marking as down
 - **Email Cooldown**: Prevents spam by limiting emails to once per 30 minutes per domain
 - **Comprehensive Logging**: Detailed console output with timestamps and status indicators
 - **Graceful Shutdown**: Handles SIGINT and SIGTERM signals properly
@@ -36,7 +36,7 @@ domains: [
 ],
 ```
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Deployment
 
 ### Prerequisites
 
@@ -44,51 +44,76 @@ domains: [
 - npm or yarn
 - SMTP email account (Gmail recommended)
 
-### Installation
+### Installation & Deployment
 
-1. **Clone and install dependencies**:
+1. **Install dependencies**:
    ```bash
    npm install
    ```
 
-2. **Configure environment variables**:
+2. **Create .env file** in the root directory:
    ```bash
-   # Copy the example environment file
-   copy  .env
-   
-   # Edit .env with your email settings
+   # Windows
    notepad .env
+   
+   # Linux/Mac
+   nano .env
    ```
 
 3. **Configure your .env file** with the following settings:
    ```env
-   # Email Configuration (Required)
+   # ============================================
+   # SMTP Email Configuration (Required)
+   # ============================================
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
    SMTP_USER=your-email@gmail.com
    SMTP_PASS=your-app-password
    
+   # ============================================
    # Email Recipients (Required)
-   TO_EMAIL=primary-recipient@yourdomain.com
-   CC_EMAIL=secondary-recipient@yourdomain.com
+   # ============================================
+   # Primary recipient(s) - comma separated for multiple
+   TO_EMAIL=recipient1@example.com,recipient2@example.com
    
+   # CC recipient(s) - comma separated (Optional)
+   CC_EMAIL=cc1@example.com,cc2@example.com
+   
+   # Email sender address (Required)
+   FROM_EMAIL=your-email@gmail.com
+   
+   # ============================================
    # Monitoring Configuration (Optional)
-   CHECK_INTERVAL_MINUTES=10
+   # ============================================
+   CHECK_INTERVAL_MINUTES=5
    
+   # ============================================
    # Service Configuration (Optional)
+   # ============================================
    SERVICE_NAME=Domain Monitor Service
    ```
 
-4. **Test your configuration** (optional but recommended):
-   ```bash
-   # Test email configuration
-   node -e "const Service = require('./src/index'); const s = new Service(); s.sendTestEmail();"
-   ```
+4. **Configure domains** (if needed):
+   - Edit `src/config.js` → `domains` array
+   - Add or remove domain URLs as needed
 
 5. **Start the service**:
    ```bash
    npm start
    ```
+
+### Deployment Checklist
+
+✅ **Required Steps:**
+- [ ] Create `.env` file with all required variables
+- [ ] Set `SMTP_USER`, `SMTP_PASS`, `TO_EMAIL`, `FROM_EMAIL`
+- [ ] Configure domains in `src/config.js` (if needed)
+- [ ] Test email connection (service will test on startup)
+
+✅ **Optional Steps:**
+- [ ] Set `CC_EMAIL` for CC recipients
+- [ ] Adjust `CHECK_INTERVAL_MINUTES` (default: 5)
+- [ ] Set custom `SERVICE_NAME`
 
 ## 📧 Email Configuration
 
@@ -124,9 +149,9 @@ node -e "const Service = require('./src/index'); const s = new Service(); s.send
 
 ### Monitoring Logic
 
-- **Check Frequency**: Every 10 minutes (configurable)
+- **Check Frequency**: Every 5 minutes (configurable)
 - **Timeout**: 30 seconds per HTTP request
-- **Retry Logic**: 3 attempts per domain before marking as down
+- **Retry Logic**: 2 attempts per domain before marking as down
 - **Status Codes**: Considers 2xx and 3xx as successful responses
 
 ### Email Alert System
@@ -160,16 +185,17 @@ domain-monitor-service/
 
 ## ⚙️ Configuration Options
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SMTP_HOST` | SMTP server hostname | smtp.gmail.com |
-| `SMTP_PORT` | SMTP server port | 587 |
-| `SMTP_USER` | Email username | - |
-| `SMTP_PASS` | Email password/app password | - |
-| `TO_EMAIL` | Primary recipient | your-email@domain.com |
-| `CC_EMAIL` | CC recipient | backup@domain.com |
-| `CHECK_INTERVAL_MINUTES` | Minutes between checks | 10 |
-| `SERVICE_NAME` | Service display name | Domain Monitor Service |
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `SMTP_HOST` | SMTP server hostname | smtp.gmail.com | No |
+| `SMTP_PORT` | SMTP server port | 587 | No |
+| `SMTP_USER` | Email username | - | **Yes** |
+| `SMTP_PASS` | Email password/app password | - | **Yes** |
+| `TO_EMAIL` | Primary recipient(s), comma-separated | - | **Yes** |
+| `CC_EMAIL` | CC recipient(s), comma-separated | - | No |
+| `FROM_EMAIL` | Email sender address | SMTP_USER | **Yes** |
+| `CHECK_INTERVAL_MINUTES` | Minutes between checks | 5 | No |
+| `SERVICE_NAME` | Service display name | 91Trucks Domain Monitor | No |
 
 ## 🚨 Alert Example
 
@@ -198,7 +224,7 @@ The email includes:
    - Ensure all dependencies are installed
 
 3. **False positive alerts**:
-   - Service retries 3 times before marking as down
+   - Service retries 2 times before marking as down
    - Check if domain is actually accessible
    - Review timeout settings (30 seconds default)
 
@@ -212,23 +238,63 @@ The service provides detailed console logging:
 
 ## 🎯 Production Deployment
 
-For production deployment:
+### Quick Deployment Steps
 
-1. **Use a process manager** like PM2:
+1. **Clone and setup**:
+   ```bash
+   git clone <repository-url>
+   cd domain-monitor-service
+   npm install
+   ```
+
+2. **Configure .env file** (Required):
+   ```bash
+   # Create .env file
+   # Copy the template below and fill in your values
+   ```
+   
+   Create `.env` file with:
+   ```env
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-app-password
+   TO_EMAIL=recipient1@example.com,recipient2@example.com
+   FROM_EMAIL=your-email@gmail.com
+   CC_EMAIL=cc@example.com  # Optional
+   CHECK_INTERVAL_MINUTES=5  # Optional
+   SERVICE_NAME=Domain Monitor  # Optional
+   ```
+
+3. **Configure domains** (if needed):
+   - Edit `src/config.js` to add/remove domains in the `domains` array
+   - No need to change anything else in the code
+
+4. **Test the service**:
+   ```bash
+   npm start
+   ```
+
+5. **Deploy with PM2** (Recommended for production):
    ```bash
    npm install -g pm2
    pm2 start src/index.js --name "domain-monitor"
    pm2 save
-   pm2 startup
+   pm2 startup  # Follow instructions to enable auto-start on reboot
    ```
 
-2. **Set up proper logging**:
-   - PM2 handles log rotation automatically
-   - Logs available via `pm2 logs domain-monitor`
+### Deployment Checklist
 
-3. **Monitor the service**:
-   - Use `pm2 status` to check service health
-   - Set up system alerts for the monitoring service itself
+- ✅ `.env` file configured with all required variables
+- ✅ Domains configured in `src/config.js`
+- ✅ Email credentials tested and working
+- ✅ Service tested locally before deployment
+- ✅ PM2 or process manager configured (for production)
+
+### Important Notes
+
+- **Domains**: Edit `src/config.js` → `domains` array (no code changes needed)
+- **Email Recipients**: Configure in `.env` file (TO_EMAIL, CC_EMAIL, FROM_EMAIL)
+- **No Code Changes Required**: All configuration is in `.env` and `config.js`
+- **Environment Variables**: All sensitive data is in `.env` (already in .gitignore)
 
 ## 🔐 Security Notes
 

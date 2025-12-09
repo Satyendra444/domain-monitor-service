@@ -7,7 +7,6 @@ class EmailService {
     this.initializeTransporter();
   }
 
-  // Format an ISO timestamp string to India Standard Time (Asia/Kolkata)
   formatToIST(isoString) {
     try {
       const date = new Date(isoString);
@@ -31,7 +30,6 @@ class EmailService {
   initializeTransporter() {
     try {
       this.transporter = nodemailer.createTransport(config.email.smtp);
-      // console.log('📧 Email service initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error.message);
     }
@@ -42,9 +40,7 @@ class EmailService {
       if (!this.transporter) {
         throw new Error('Email transporter not initialized');
       }
-      
       await this.transporter.verify();
-      // console.log('✅ Email connection test successful');
       return true;
     } catch (error) {
       console.error('❌ Email connection test failed:', error.message);
@@ -53,10 +49,6 @@ class EmailService {
   }
 
   generateDownDomainsEmailContent(downDomains, checkResult) {
-    const downDomainsList = downDomains.map(domain => 
-      `• ${domain.domain} - Error: ${domain.error} (Status: ${domain.status || 'N/A'})`
-    ).join('\\n');
-
     const subject = `🚨 Domain Alert: ${downDomains.length} domain(s) are down - ${config.service.name}`;
     const alertTimeIST = this.formatToIST(checkResult.timestamp);
     
@@ -126,7 +118,7 @@ ${config.domains.map(domain => {
   const domainResult = checkResult.results.find(r => r.domain === domain);
   const status = domainResult?.isUp ? '✅' : '❌';
   return `${status} ${domain}`;
-}).join('\\n')}
+}).join('\n')}
 
 ---
 This alert was generated automatically by ${config.service.name}.
@@ -144,7 +136,6 @@ Note: Each domain is checked ${config.monitoring.retries} times with retries bef
       }
 
       if (!downDomains || downDomains.length === 0) {
-         console.log('📧 No down domains to report');
         return true;
       }
 
@@ -153,23 +144,16 @@ Note: Each domain is checked ${config.monitoring.retries} times with retries bef
       const mailOptions = {
         from: config.email.from,
         to: config.email.recipients.to,
-        cc: config.email.recipients.cc,
+        cc: config.email.recipients.cc.length > 0 ? config.email.recipients.cc : undefined,
         subject: subject,
         text: textContent,
         html: htmlContent
       };
 
-      // console.log(`📧 Sending email alert for ${downDomains.length} down domain(s)...`);
-      
-      const info = await this.transporter.sendMail(mailOptions);
-      // console.log('✅ Email alert sent successfully:', info.messageId);
-      const toRecipients = Array.isArray(config.email.recipients.to) ? config.email.recipients.to.join(', ') : config.email.recipients.to;
-      const ccRecipients = Array.isArray(config.email.recipients.cc) ? config.email.recipients.cc.join(', ') : config.email.recipients.cc;
-      // console.log(`📧 Recipients: TO: ${toRecipients}, CC: ${ccRecipients}`);
-      
+      await this.transporter.sendMail(mailOptions);
       return true;
     } catch (error) {
-      console.error('❌ Failed to send email alert:', error);
+      console.error('❌ Failed to send email alert:', error.message);
       return false;
     }
   }
@@ -183,7 +167,7 @@ Note: Each domain is checked ${config.monitoring.retries} times with retries bef
       const testMailOptions = {
         from: config.email.from,
         to: config.email.recipients.to,
-        cc: config.email.recipients.cc,
+        cc: config.email.recipients.cc.length > 0 ? config.email.recipients.cc : undefined,
         subject: `🧪 Test Email - ${config.service.name}`,
         text: `This is a test email from ${config.service.name}. If you receive this, email notifications are working correctly.`,
         html: `
@@ -197,9 +181,9 @@ Note: Each domain is checked ${config.monitoring.retries} times with retries bef
         `
       };
 
-       console.log('📧 Sending test email...');
-      const info = await this.transporter.sendMail(testMailOptions);
-       console.log('✅ Test email sent successfully:', info.messageId);
+      console.log('📧 Sending test email...');
+      await this.transporter.sendMail(testMailOptions);
+      console.log('✅ Test email sent successfully');
       
       return true;
     } catch (error) {
