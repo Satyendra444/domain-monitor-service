@@ -9,7 +9,8 @@ class DomainMonitoringService {
     this.emailService = new EmailService();
     this.isRunning = false;
     this.cronJob = null;
-    this.lastEmailSent = new Map();
+    this.lastEmailSent = new Map(); // Track when emails were last sent for each domain
+    this.lastRecoveryEmailSent = new Map(); // Track recovery emails
   }
 
   async initialize() {
@@ -17,6 +18,7 @@ class DomainMonitoringService {
     console.log('='.repeat(60));
     console.log(`📍 Monitoring ${config.domains.length} domains`);
     console.log(`⏰ Check interval: ${config.monitoring.intervalMinutes} minutes`);
+    console.log(`⏱️ Slow response threshold: ${config.monitoring.slowResponseThreshold}ms`);
     console.log(`📧 Email TO: ${Array.isArray(config.email.recipients.to) ? config.email.recipients.to.join(', ') : config.email.recipients.to}`);
     if (config.email.recipients.cc.length > 0) {
       console.log(`📧 Email CC: ${config.email.recipients.cc.join(', ')}`);
@@ -31,9 +33,20 @@ class DomainMonitoringService {
     try {
       const checkResult = await this.domainMonitor.checkAllDomains();
       
+      // Handle recovered domains
+      if (checkResult.recoveredDomainsList.length > 0) {
+        await this.handleRecoveredDomains(checkResult.recoveredDomainsList, checkResult);
+      }
+
+      // Handle slow domains
+      if (checkResult.slowDomainsList.length > 0) {
+        await this.handleSlowDomains(checkResult.slowDomainsList, checkResult);
+      }
+
+      // Handle down domains
       if (checkResult.downDomainsList.length > 0) {
         await this.handleDownDomains(checkResult.downDomainsList, checkResult);
-      } else {
+      } else if (checkResult.recoveredDomainsList.length === 0 && checkResult.slowDomainsList.length === 0) {
         console.log('✅ All domains are up and running!');
       }
 
@@ -42,6 +55,27 @@ class DomainMonitoringService {
       console.error('❌ Error during domain check:', error.message);
       throw error;
     }
+  }
+
+  async handleRecoveredDomains(recoveredDomains, checkResult) {
+    const domainsNeedingAlert = this.filterDomainsForRecoveryAlert(recoveredDomains);
+    
+    if (domainsNeedingAlert.length > 0) {
+      const emailSent = await this.emailService.sendRecoveryAlert(domainsNeedingAlert, checkResult);
+      
+      if (emailSent) {
+        domainsNeedingAlert.forEach(domain => {
+          this.lastRecoveryEmailSent.set(domain.domain, Date.now());
+        });
+      } else {
+        console.error('❌ Failed to send recovery email alert');
+      }
+    }
+  }
+
+  async handleSlowDomains(slowDomains, checkResult) {
+    // For now, just log slow domains. Can be extended to send alerts if needed
+    console.log(`⚠️ ${slowDomains.length} domain(s) have slow response times`);
   }
 
   async handleDownDomains(downDomains, checkResult) {
@@ -71,6 +105,20 @@ class DomainMonitoringService {
         return true;
       }
       return (now - lastEmailTime) >= cooldownMs;
+    });
+  }
+
+  filterDomainsForRecoveryAlert(recoveredDomains) {
+    // Send recovery email immediately (no cooldown) but only once per recovery
+    const now = Date.now();
+    const recoveryCooldownMs = 5 * 60 * 1000; // 5 minutes cooldown for recovery emails
+
+    return recoveredDomains.filter(domain => {
+      const lastRecoveryEmailTime = this.lastRecoveryEmailSent.get(domain.domain);
+      if (!lastRecoveryEmailTime) {
+        return true;
+      }
+      return (now - lastRecoveryEmailTime) >= recoveryCooldownMs;
     });
   }
 
@@ -126,6 +174,10 @@ class DomainMonitoringService {
       lastEmailSentTimes: Array.from(this.lastEmailSent.entries()).map(([domain, timestamp]) => ({
         domain,
         lastEmailSent: new Date(timestamp).toISOString()
+      })),
+      lastRecoveryEmailSentTimes: Array.from(this.lastRecoveryEmailSent.entries()).map(([domain, timestamp]) => ({
+        domain,
+        lastRecoveryEmailSent: new Date(timestamp).toISOString()
       }))
     };
   }

@@ -14,7 +14,7 @@ function parseMultipleEmails(emailString) {
 const config = {
   // Domains to monitor - Edit this array to add/remove domains
   domains: [
-    'https://www.91trucks.comtt/',
+    'https://www.91trucks.com/',
     'https://blog.91trucks.com/',
     'https://jeeto.91trucks.com/',
     'https://cv.91trucks.com/',
@@ -54,8 +54,9 @@ const config = {
   // Monitoring configuration
   monitoring: {
     intervalMinutes: parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5,
-    timeout: 30000,
-    retries: 2
+    timeout: 30000, // 30 seconds timeout for HTTP requests
+    retries: 2, // Number of retries before marking as down
+    slowResponseThreshold: parseInt(process.env.SLOW_RESPONSE_THRESHOLD) || 5000 // Alert if response time > 5 seconds (in ms)
   },
 
   // Service configuration
@@ -92,6 +93,7 @@ function validateConfig() {
     console.error('  - SMTP_HOST: SMTP host (default: smtp.gmail.com)');
     console.error('  - SMTP_PORT: SMTP port (default: 587)');
     console.error('  - CHECK_INTERVAL_MINUTES: Check interval (default: 5)');
+    console.error('  - SLOW_RESPONSE_THRESHOLD: Slow response threshold in ms (default: 5000)');
     console.error('  - SERVICE_NAME: Service name');
     console.error('\nPlease create a .env file with these variables.');
     process.exit(1);

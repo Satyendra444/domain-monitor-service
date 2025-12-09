@@ -9,11 +9,18 @@ class DomainMonitor {
 
   initializeDomainStatus() {
     config.domains.forEach(domain => {
-      this.domainStatus.set(domain, { isUp: true, lastChecked: null, failures: 0 });
+      this.domainStatus.set(domain, { 
+        isUp: true, 
+        lastChecked: null, 
+        failures: 0,
+        lastResponseTime: null,
+        wasDown: false // Track previous state for recovery detection
+      });
     });
   }
 
   async checkDomain(domain) {
+    const startTime = Date.now();
     try {
       const response = await axios.get(domain, {
         timeout: config.monitoring.timeout,
@@ -23,30 +30,38 @@ class DomainMonitor {
         }
       });
 
+      const responseTime = Date.now() - startTime;
+      const isSlow = responseTime > config.monitoring.slowResponseThreshold;
+
       return {
         domain,
         isUp: true,
         status: response.status,
-        responseTime: response.config?.responseTime || 'N/A',
+        responseTime,
+        isSlow,
         error: null
       };
     } catch (error) {
+      const responseTime = Date.now() - startTime;
       return {
         domain,
         isUp: false,
         status: error.response?.status || null,
-        responseTime: null,
+        responseTime,
+        isSlow: false,
         error: error.message
       };
     }
   }
 
   async checkDomainWithRetries(domain) {
+    let lastResult = null;
+    
     for (let attempt = 1; attempt <= config.monitoring.retries; attempt++) {
-      const result = await this.checkDomain(domain);
+      lastResult = await this.checkDomain(domain);
       
-      if (result.isUp) {
-        return result;
+      if (lastResult.isUp) {
+        return lastResult;
       }
       
       if (attempt < config.monitoring.retries) {
@@ -54,43 +69,77 @@ class DomainMonitor {
       }
     }
     
-    return await this.checkDomain(domain);
+    return lastResult;
+  }
+
+  formatResponseTime(ms) {
+    if (ms === null || ms === undefined) return 'N/A';
+    if (ms < 1000) return `${ms}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
   }
 
   async checkAllDomains() {
     console.log(`\n🔍 Starting domain check at ${new Date().toISOString()}`);
     console.log('='.repeat(60));
 
-    const results = [];
+    // Parallel checking for faster execution
+    const checkPromises = config.domains.map(domain => 
+      this.checkDomainWithRetries(domain)
+    );
+
+    const results = await Promise.all(checkPromises);
     const downDomains = [];
+    const slowDomains = [];
+    const recoveredDomains = [];
 
-    for (const domain of config.domains) {
-      const result = await this.checkDomainWithRetries(domain);
-      const currentStatus = this.domainStatus.get(domain);
-      
+    results.forEach(result => {
+      const currentStatus = this.domainStatus.get(result.domain);
       result.timestamp = new Date().toISOString();
-      results.push(result);
-
+      
       const wasUp = currentStatus.isUp;
+      const wasDown = currentStatus.wasDown;
+      
       currentStatus.isUp = result.isUp;
       currentStatus.lastChecked = result.timestamp;
+      currentStatus.lastResponseTime = result.responseTime;
 
       if (!result.isUp) {
         currentStatus.failures++;
         downDomains.push(result);
+        currentStatus.wasDown = true;
+        
         if (wasUp) {
-          console.log(`🚨 NEW FAILURE: ${domain}`);
+          console.log(`🚨 NEW FAILURE: ${result.domain}`);
         }
       } else {
         currentStatus.failures = 0;
+        
+        // Check for recovery
+        if (wasDown) {
+          recoveredDomains.push(result);
+          currentStatus.wasDown = false;
+          console.log(`✅ RECOVERED: ${result.domain}`);
+        }
       }
 
-      this.domainStatus.set(domain, currentStatus);
-    }
+      // Check for slow response
+      if (result.isUp && result.isSlow) {
+        slowDomains.push(result);
+        console.log(`⚠️ SLOW RESPONSE: ${result.domain} (${this.formatResponseTime(result.responseTime)})`);
+      }
+
+      this.domainStatus.set(result.domain, currentStatus);
+    });
 
     console.log('='.repeat(60));
     console.log(`✅ Domains UP: ${results.filter(r => r.isUp).length}`);
     console.log(`❌ Domains DOWN: ${downDomains.length}`);
+    if (slowDomains.length > 0) {
+      console.log(`⚠️ Slow Domains: ${slowDomains.length}`);
+    }
+    if (recoveredDomains.length > 0) {
+      console.log(`🔄 Recovered Domains: ${recoveredDomains.length}`);
+    }
     
     if (downDomains.length > 0) {
       console.log(`\n🚨 DOWN DOMAINS:`);
@@ -104,8 +153,11 @@ class DomainMonitor {
       totalDomains: config.domains.length,
       upDomains: results.filter(r => r.isUp).length,
       downDomains: downDomains.length,
+      slowDomains: slowDomains.length,
       results,
-      downDomainsList: downDomains
+      downDomainsList: downDomains,
+      slowDomainsList: slowDomains,
+      recoveredDomainsList: recoveredDomains
     };
   }
 
@@ -116,7 +168,8 @@ class DomainMonitor {
         domain,
         isUp: status.isUp,
         lastChecked: status.lastChecked,
-        failures: status.failures
+        failures: status.failures,
+        lastResponseTime: status.lastResponseTime
       });
     }
     return summary;
