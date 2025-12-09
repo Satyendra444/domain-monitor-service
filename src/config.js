@@ -62,7 +62,7 @@ const config = {
 
   // Monitoring configuration
   monitoring: {
-    intervalMinutes: parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5,
+    intervalMinutes: parseInt(process.env.CHECK_INTERVAL_MINUTES) || 10,
     timeout: 30000, // 30 seconds timeout for HTTP requests
     retries: 2 // Number of retries before marking as down
   },

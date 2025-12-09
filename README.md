@@ -86,7 +86,7 @@ domains: [
    CC_EMAIL=secondary-recipient@yourdomain.com
 
    # Monitoring Configuration (Optional)
-   CHECK_INTERVAL_MINUTES=5
+   CHECK_INTERVAL_MINUTES=10
 
    # Service Configuration (Optional)
    SERVICE_NAME=Domain Monitor Service
