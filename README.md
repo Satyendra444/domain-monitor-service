@@ -1,42 +1,55 @@
+
 # Domain Monitoring Service
 
-A robust and scalable domain monitoring service that continuously checks the availability of multiple domains and sends email alerts when any domain becomes unavailable. Built with Node.js for reliability and easy deployment.
+A robust and scalable Node.js service that continuously checks the availability of multiple domains and sends email alerts when any domain becomes unavailable. Built for reliability, easy deployment, and flexible configuration.
+
 
 ## 🌟 Features
 
-- **Automated Monitoring**: Checks domain availability every 10 minutes (configurable)
+- **Automated Monitoring**: Checks domain availability at a configurable interval (default: every 5 minutes)
 - **Email Alerts**: Sends detailed HTML email notifications when domains are down
-- **Retry Logic**: Tests each domain 3 times with retries before marking as down
+- **Retry Logic**: Tests each domain multiple times (default: 2 retries) before marking as down
 - **Email Cooldown**: Prevents spam by limiting emails to once per 30 minutes per domain
 - **Comprehensive Logging**: Detailed console output with timestamps and status indicators
 - **Graceful Shutdown**: Handles SIGINT and SIGTERM signals properly
 - **Environment-based Configuration**: Easy setup with .env files
 - **Production Ready**: Built-in error handling and process management
 
+
 ## 📋 Default Monitored Domains
 
-The service is configured by default to monitor the following domains:
+By default, the service monitors the following domains (see `src/config.js`):
 
 - https://www.91trucks.com/
 - https://blog.91trucks.com/
 - https://jeeto.91trucks.com/
 - https://cv.91trucks.com/
+- https://admin.91trucks.com/
+- https://inventory.91trucks.com/
+- https://np.91trucks.com/
+- https://bd.91trucks.com/
+- https://sa.91trucks.com/
+- https://ace-ev.91trucks.com/
+- https://forge.91trucks.com/
+- https://acegold.91trucks.com/
+- https://tata-ace-pro.91trucks.com/
 
-> **Note**: You can easily modify the monitored domains by editing the `config.js` file in the `src/` directory.
+> **Note**: You can easily modify the monitored domains by editing the `domains` array in `src/config.js`.
 
 ### Customizing Monitored Domains
 
 To monitor your own domains, edit the `domains` array in `src/config.js`:
 
-```javascript path=null start=null
+```js
 domains: [
-  'https://yourdomain.com/',
-  'https://api.yourdomain.com/',
-  'https://subdomain.yourdomain.com/'
+   'https://yourdomain.com/',
+   'https://api.yourdomain.com/',
+   'https://subdomain.yourdomain.com/'
 ],
 ```
 
 ## 🚀 Quick Start
+
 
 ### Prerequisites
 
@@ -51,30 +64,30 @@ domains: [
    npm install
    ```
 
+
 2. **Configure environment variables**:
    ```bash
-   # Copy the example environment file
-   copy  .env
-   
-   # Edit .env with your email settings
+   # Copy the example environment file (if available)
+   copy .env.example .env
+   # Or create a new .env file
    notepad .env
    ```
 
-3. **Configure your .env file** with the following settings:
+3. **Edit your `.env` file** with the following settings:
    ```env
    # Email Configuration (Required)
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
    SMTP_USER=your-email@gmail.com
    SMTP_PASS=your-app-password
-   
-   # Email Recipients (Required)
-   TO_EMAIL=primary-recipient@yourdomain.com
+
+   # Email Recipients (comma-separated for multiple)
+   TO_EMAIL=primary-recipient@yourdomain.com,another@yourdomain.com
    CC_EMAIL=secondary-recipient@yourdomain.com
-   
+
    # Monitoring Configuration (Optional)
-   CHECK_INTERVAL_MINUTES=10
-   
+   CHECK_INTERVAL_MINUTES=5
+
    # Service Configuration (Optional)
    SERVICE_NAME=Domain Monitor Service
    ```
@@ -122,11 +135,12 @@ node -e "const Service = require('./src/index'); const s = new Service(); s.send
 
 ## 📊 Service Features
 
+
 ### Monitoring Logic
 
-- **Check Frequency**: Every 10 minutes (configurable)
+- **Check Frequency**: Every 5 minutes by default (configurable via `CHECK_INTERVAL_MINUTES`)
 - **Timeout**: 30 seconds per HTTP request
-- **Retry Logic**: 3 attempts per domain before marking as down
+- **Retry Logic**: 2 attempts per domain before marking as down (configurable in `src/config.js`)
 - **Status Codes**: Considers 2xx and 3xx as successful responses
 
 ### Email Alert System
@@ -148,10 +162,10 @@ node -e "const Service = require('./src/index'); const s = new Service(); s.send
 ```
 domain-monitor-service/
 ├── src/
-│   ├── index.js           # Main application with scheduling
-│   ├── domainMonitor.js   # Domain checking logic
-│   ├── emailService.js    # Email notification system
-│   └── config.js          # Configuration management
+│   ├── index.js           # Main application with scheduling and service logic
+│   ├── domainMonitor.js   # Domain checking and retry logic
+│   ├── emailService.js    # Email notification system (HTML and text emails)
+│   └── config.js          # Configuration management and environment variable parsing
 ├── package.json           # Dependencies and scripts
 ├── .env.example          # Environment variables template
 ├── .gitignore            # Git ignore rules
@@ -171,6 +185,7 @@ domain-monitor-service/
 | `CHECK_INTERVAL_MINUTES` | Minutes between checks | 10 |
 | `SERVICE_NAME` | Service display name | Domain Monitor Service |
 
+
 ## 🚨 Alert Example
 
 When a domain goes down, you'll receive an email like this:
@@ -182,6 +197,40 @@ The email includes:
 - List of down domains with error details
 - Status of all monitored domains
 - Professional HTML formatting
+
+### Example Email Output
+
+```
+🚨 DOMAIN MONITORING ALERT - 91Trucks Domain Monitor
+
+Alert Time: 2025-12-09T12:00:00.000Z
+Total Domains: 13
+Domains UP: 12
+Domains DOWN: 1
+
+DOMAINS CURRENTLY DOWN:
+• https://forge.91trucks.com/ - Error: Request timed out (Status: N/A) | Checked: 09/12/2025, 17:30:00 IST
+
+ALL MONITORED DOMAINS:
+✅ https://www.91trucks.com/
+✅ https://blog.91trucks.com/
+✅ https://jeeto.91trucks.com/
+✅ https://cv.91trucks.com/
+✅ https://admin.91trucks.com/
+✅ https://inventory.91trucks.com/
+✅ https://np.91trucks.com/
+✅ https://bd.91trucks.com/
+✅ https://sa.91trucks.com/
+✅ https://ace-ev.91trucks.com/
+❌ https://forge.91trucks.com/
+✅ https://acegold.91trucks.com/
+✅ https://tata-ace-pro.91trucks.com/
+
+---
+This alert was generated automatically by 91Trucks Domain Monitor.
+Please check the affected domains and take necessary action.
+Note: Each domain is checked 2 times with retries before being marked as down.
+```
 
 ## 🔧 Troubleshooting
 
@@ -202,6 +251,7 @@ The email includes:
    - Check if domain is actually accessible
    - Review timeout settings (30 seconds default)
 
+
 ### Logs
 
 The service provides detailed console logging:
@@ -209,6 +259,18 @@ The service provides detailed console logging:
 - ❌ Failed domain checks with error details
 - 📧 Email sending status
 - ⏰ Scheduled check notifications
+
+## 🛠️ Extending & Customizing
+
+You can extend this service to support additional notification channels (e.g., SMS, Slack, Telegram) by adding new modules and updating the alert logic in `src/index.js` and `src/emailService.js`.
+
+**Steps to add a new notification channel:**
+1. Create a new service file (e.g., `smsService.js` or `slackService.js`)
+2. Implement a method to send alerts via the new channel
+3. Update the main service logic to call your new method when domains are down
+4. Add configuration options to `.env` and `src/config.js` as needed
+
+This modular approach makes it easy to integrate with any alerting system your organization uses.
 
 ## 🎯 Production Deployment
 
@@ -244,10 +306,31 @@ For issues or questions about this monitoring service:
 - Review the console logs for detailed error messages
 - Ensure your .env configuration is correct
 
+
+## 📝 Changelog
+
+All notable changes to this project will be documented here.
+
+### [Unreleased]
+- Initial public release
+- Core monitoring and email alert features
+- Configurable domains and intervals
+- Logging and graceful shutdown
+
 ## 📄 License
 
 MIT License - Feel free to modify and adapt for your needs.
 
 ---
 
-****
+## 🤝 How to Contribute
+
+Contributions, issues, and feature requests are welcome!
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/my-feature`)
+5. Open a pull request
+
+Please make sure to update tests as appropriate and follow the code style used in this project.
