@@ -26,7 +26,8 @@ const config = {
     'https://ace-ev.91trucks.com/',
     'https://forge.91trucks.com/',
     'https://acegold.91trucks.com/',
-    'https://tata-ace-pro.91trucks.com/'
+    'https://tata-ace-pro.91trucks.com/',
+    'https://test.91trucks.com/'
   ],
 
   // Email configuration - All from .env file
