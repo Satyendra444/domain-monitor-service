@@ -1,0 +1,46 @@
+name: Domain Monitor
+
+on:
+  schedule:
+    # Runs every 10 minutes from 6:00 AM to 11:00 PM IST
+    # IST = UTC+5:30  →  6:00 AM IST = 00:30 UTC  |  11:00 PM IST = 17:30 UTC
+    # GitHub cron minimum granularity is 5 minutes.
+    # We schedule every 10 min across the UTC window 00:30–17:30.
+    - cron: '30,40,50 0 * * *'       # 00:30, 00:40, 00:50 UTC
+    - cron: '0,10,20,30,40,50 1-16 * * *'  # every 10 min, 01:00–16:50 UTC
+    - cron: '0,10,20,30 17 * * *'    # 17:00, 17:10, 17:20, 17:30 UTC
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  check-domains:
+    name: Check Domains
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run domain check
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+          CC_EMAIL: ${{ secrets.CC_EMAIL }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+          CHECK_INTERVAL_MINUTES: '10'
+        run: node src/run-once.js

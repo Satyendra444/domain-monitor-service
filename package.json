@@ -5,7 +5,14 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "check": "node src/run-once.js",
     "dev": "nodemon src/index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop domain-monitor",
+    "pm2:restart": "pm2 restart domain-monitor",
+    "pm2:logs": "pm2 logs domain-monitor",
+    "pm2:status": "pm2 status",
+    "pm2:save": "pm2 save",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
