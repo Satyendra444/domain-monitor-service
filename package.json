@@ -1,0 +1,35 @@
+{
+  "name": "domain-monitor-service",
+  "version": "1.0.0",
+  "description": "A service that monitors domain availability and sends email alerts when domains are down",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node src/run-once.js",
+    "dev": "nodemon src/index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop domain-monitor",
+    "pm2:restart": "pm2 restart domain-monitor",
+    "pm2:logs": "pm2 logs domain-monitor",
+    "pm2:status": "pm2 status",
+    "pm2:save": "pm2 save",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "domain-monitoring",
+    "uptime",
+    "email-alerts",
+    "service"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "nodemailer": "^6.9.0",
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
