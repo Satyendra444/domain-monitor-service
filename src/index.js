@@ -25,16 +25,8 @@ class DomainMonitoringService {
     }
     console.log('='.repeat(60));
 
-    console.log(`🕐 Active hours: 6:00 AM - 11:00 PM IST (runs daily)`);
-    console.log('='.repeat(60));
-
     await this.emailService.testConnection();
-
-    if (this.isWithinActiveHours()) {
-      await this.performDomainCheck();
-    } else {
-      console.log('⏸️  Currently outside active hours (6 AM - 11 PM IST). Monitoring will resume at 6:00 AM IST.');
-    }
+    await this.performDomainCheck();
   }
 
   async performDomainCheck() {
@@ -130,22 +122,6 @@ class DomainMonitoringService {
     });
   }
 
-  isWithinActiveHours() {
-    // Active window: 6:00 AM to 11:00 PM IST (UTC+5:30)
-    const now = new Date();
-    const istOffset = 5.5 * 60; // IST is UTC+5:30 in minutes
-    const utcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-    const istMinutes = (utcMinutes + istOffset) % (24 * 60);
-    const istHour = Math.floor(istMinutes / 60);
-    const istMin = istMinutes % 60;
-
-    const startMinutes = 6 * 60;       // 6:00 AM IST
-    const endMinutes = 23 * 60;        // 11:00 PM IST
-    const currentMinutes = istHour * 60 + istMin;
-
-    return currentMinutes >= startMinutes && currentMinutes < endMinutes;
-  }
-
   start() {
     if (this.isRunning) {
       return;
@@ -154,11 +130,6 @@ class DomainMonitoringService {
     const cronExpression = `*/${config.monitoring.intervalMinutes} * * * *`;
 
     this.cronJob = cron.schedule(cronExpression, async () => {
-      if (!this.isWithinActiveHours()) {
-        console.log(`⏸️  Outside active hours (6 AM - 11 PM IST). Skipping check.`);
-        return;
-      }
-
       console.log('\n' + '='.repeat(80));
       console.log(`⏰ Scheduled check triggered at ${new Date().toISOString()}`);
       console.log('='.repeat(80));

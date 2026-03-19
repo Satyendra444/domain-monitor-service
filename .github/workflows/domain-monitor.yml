@@ -2,13 +2,8 @@ name: Domain Monitor
 
 on:
   schedule:
-    # Runs every 10 minutes from 6:00 AM to 11:00 PM IST
-    # IST = UTC+5:30  →  6:00 AM IST = 00:30 UTC  |  11:00 PM IST = 17:30 UTC
-    # GitHub cron minimum granularity is 5 minutes.
-    # We schedule every 10 min across the UTC window 00:30–17:30.
-    - cron: '30,40,50 0 * * *'       # 00:30, 00:40, 00:50 UTC
-    - cron: '0,10,20,30,40,50 1-16 * * *'  # every 10 min, 01:00–16:50 UTC
-    - cron: '0,10,20,30 17 * * *'    # 17:00, 17:10, 17:20, 17:30 UTC
+    # Runs every 10 minutes, 24x7
+    - cron: '*/10 * * * *'
 
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
