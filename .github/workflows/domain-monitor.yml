@@ -2,9 +2,8 @@ name: Domain Monitor
 
 on:
   schedule:
-    # Every 10 minutes 24x7 (GitHub minimum is 5 min).
-    # Inside the job we loop every 1 minute for 10 iterations to achieve per-minute checks.
-    - cron: '*/10 * * * *'
+    # Every 5 minutes 24x7 (GitHub minimum is 5 min).
+    - cron: '*/5 * * * *'
 
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
@@ -13,7 +12,7 @@ jobs:
   check-domains:
     name: Check Domains
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -28,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run domain check every minute for 10 minutes
+      - name: Run domain check
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -38,12 +37,5 @@ jobs:
           CC_EMAIL: ${{ secrets.CC_EMAIL }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
-          CHECK_INTERVAL_MINUTES: '1'
-        run: |
-          for i in $(seq 1 10); do
-            echo "--- Run $i of 10 at $(date -u) ---"
-            node src/run-once.js
-            if [ $i -lt 10 ]; then
-              sleep 60
-            fi
-          done
+          CHECK_INTERVAL_MINUTES: '5'
+        run: node src/run-once.js
