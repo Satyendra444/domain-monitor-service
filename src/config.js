@@ -14,23 +14,23 @@ function parseMultipleEmails(emailString) {
 const config = {
   // Domains to monitor - Edit this array to add/remove domains
   domains: [
-    'https://www.91trucks.com/',
-    'https://blog.91trucks.com/',
-    'https://jeeto.91trucks.com/',
-    'https://cv.91trucks.com/',
-    'https://admin.91trucks.com/',
-    // 'https://inventory.91trucks.com/',
-    'https://np.91trucks.com/',
-    'https://bd.91trucks.com/',
-    'https://sa.91trucks.com/',
-    'https://ace-ev.91trucks.com/',
-    'https://forge.91trucks.com/',
-    'https://acegold.91trucks.com/',
-    'https://tata-ace-pro.91trucks.com/',
-    'https://trucksfloor.com/',
-    'https://motorfloor.com/'
-
-   // 'https://test.91trucks.com/'
+    'https://www.91trucks.com',
+    'https://www.91tractors.com',
+    'https://www.91infra.com',
+    'https://trucksfloor.com',
+    'https://motorfloor.com',
+    'https://admin.91trucks.com',
+    'https://forge.91trucks.com',
+    'https://np.91trucks.com',
+    'https://jeeto.91trucks.com',
+    'https://cv.91trucks.com',
+    'https://blog.91trucks.com',
+    'https://webhook.91trucks.com',
+    'https://bd.91trucks.com',
+    'https://sa.91trucks.com',
+    'https://ace-ev.91trucks.com',
+    'https://acegold.91trucks.com',
+    'https://tata-ace-pro.91trucks.com',
   ],
 
   // Email configuration - All from .env file
