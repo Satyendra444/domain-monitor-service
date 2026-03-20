@@ -19,7 +19,7 @@ const config = {
     'https://jeeto.91trucks.com/',
     'https://cv.91trucks.com/',
     'https://admin.91trucks.com/',
-    'https://inventory.91trucks.com/',
+    // 'https://inventory.91trucks.com/',
     'https://np.91trucks.com/',
     'https://bd.91trucks.com/',
     'https://sa.91trucks.com/',
