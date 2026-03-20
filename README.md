@@ -150,7 +150,7 @@ The service runs fully automated via GitHub Actions — no server or manual inte
    | Secret | Description |
    |--------|-------------|
    | `SMTP_HOST` | SMTP server (e.g. `smtp.gmail.com`) |
-   | `SMTP_PORT` | SMTP port (e.g. `587`) |
+   | `SMTP_PORT` | SMTP port (e.g. `547`) |
    | `SMTP_USER` | Your email address |
    | `SMTP_PASS` | Your app password |
    | `TO_EMAIL` | Primary recipient(s), comma-separated |
@@ -251,7 +251,7 @@ domain-monitor-service/
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `SMTP_HOST` | SMTP server hostname | smtp.gmail.com | No |
-| `SMTP_PORT` | SMTP server port | 587 | No |
+| `SMTP_PORT` | SMTP server port | 567 | No |
 | `SMTP_USER` | Email username | - | **Yes** |
 | `SMTP_PASS` | Email password/app password | - | **Yes** |
 | `TO_EMAIL` | Primary recipient(s), comma-separated | - | **Yes** |
